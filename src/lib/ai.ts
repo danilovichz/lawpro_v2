@@ -3,6 +3,7 @@ import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { supabase } from './supabase';
 import { fetchLawyersByLocation } from './lawyerService';
+import { searchLawyers } from './simpleLawyerSearch';
 import axios from 'axios';
 
 const openai = new OpenAI({
