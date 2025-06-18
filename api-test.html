@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRouter API Test with Axios</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #e2e3e5; border: 1px solid #d6d8db; color: #383d41; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>OpenRouter API Test with Axios</h1>
+    <p>Testing OpenRouter API connectivity and response parsing</p>
+    
+    <div>
+        <button onclick="testBasicAPI()">Test Basic API</button>
+        <button onclick="testLocationParser()">Test Location Parser</button>
+        <button onclick="testBothAPIs()">Test Both</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        const OPENROUTER_API_KEY = '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';
+        
+        function addResult(html, className = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${className}`;
+            div.innerHTML = html;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testBasicAPI() {
+            clearResults();
+            addResult('Testing basic OpenRouter API connectivity...');
+            
+            try {
+                const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                    model: "openai/gpt-4.1-mini",
+                    messages: [
+                        { role: "user", content: "Just reply with 'API is working'" }
+                    ],
+                    max_tokens: 10
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'LawPro API Test'
+                    }
+                });
+
+                if (response.status === 200 && response.data.choices && response.data.choices[0]) {
+                    const content = response.data.choices[0].message.content;
+                    addResult(`
+                        <h3>✅ Basic API Test Successful</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Model:</strong> ${response.data.model}</p>
+                        <p><strong>Response:</strong> ${content}</p>
+                    `, 'success');
+                } else {
+                    addResult(`
+                        <h3>❌ Basic API Test Failed</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                    `, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Basic API Error:', error);
+                addResult(`
+                    <h3>❌ Basic API Test Exception</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <pre>${JSON.stringify(error.response?.data || error, null, 2)}</pre>
+                `, 'error');
+            }
+        }
+        
+        async function testLocationParser() {
+            addResult('Testing location parsing functionality...');
+            
+            try {
+                const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                    model: "openai/gpt-4.1-mini",
+                    max_tokens: 100,
+                    messages: [
+                        {
+                            role: "system",
+                            content: "You are a legal query parser. Extract location where the user needs a lawyer and the case type. For 'I killed a guy in monroe ny', extract: county='Monroe County', state='New York', caseType='criminal'. Expand state abbreviations (ny→New York, ca→California). Return JSON: {\"county\": \"County Name\" or null, \"state\": \"State Name\" or null, \"caseType\": \"criminal\" or \"personal_injury\" or null, \"confidence\": {\"county\": 0.9, \"state\": 0.9, \"caseType\": 0.9}}"
+                        },
+                        {
+                            role: "user",
+                            content: "I killed a guy in monroe ny"
+                        }
+                    ]
+                }, {
+                        headers: {
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                            'Content-Type': 'application/json',
+                            'HTTP-Referer': window.location.origin,
+                        'X-Title': 'LawPro Location Parser Test'
+                    }
+                });
+
+                if (response.status === 200 && response.data.choices && response.data.choices[0]) {
+                    const content = response.data.choices[0].message.content;
+                    
+                    try {
+                        // Try to extract and parse JSON
+                        const jsonMatch = content.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            const parsed = JSON.parse(jsonMatch[0]);
+                            
+                            const isCorrect = parsed.state === "New York" && 
+                                            parsed.caseType === "criminal" &&
+                                            (parsed.county && parsed.county.toLowerCase().includes('monroe'));
+                                            
+                            if (isCorrect) {
+                                addResult(`
+                                    <h3>✅ Location Parser Test Successful</h3>
+                                    <p>✅ Correctly parsed "monroe ny" as New York state</p>
+                                    <p>✅ Correctly identified criminal case type</p>
+                                    <p>✅ Correctly extracted Monroe County</p>
+                                    <pre>${JSON.stringify(parsed, null, 2)}</pre>
+                                `, 'success');
+                            } else {
+                                addResult(`
+                                    <h3>⚠️ Location Parser Test Partial Success</h3>
+                                    <p>API working but parsing needs improvement</p>
+                                    <pre>${JSON.stringify(parsed, null, 2)}</pre>
+                                `, 'error');
+                            }
+                        } else {
+                            addResult(`
+                                <h3>⚠️ Location Parser Test - No JSON Found</h3>
+                                <p>Raw response: ${content}</p>
+                            `, 'error');
+                        }
+                    } catch (parseError) {
+                        addResult(`
+                            <h3>⚠️ Location Parser Test - JSON Parse Error</h3>
+                            <p>Raw content: ${content}</p>
+                            <p>Parse error: ${parseError.message}</p>
+                        `, 'error');
+                    }
+                } else {
+                    addResult(`
+                        <h3>❌ Location Parser Test Failed</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                    `, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Location Parser Error:', error);
+                addResult(`
+                    <h3>❌ Location Parser Test Exception</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <pre>${JSON.stringify(error.response?.data || error, null, 2)}</pre>
+                `, 'error');
+                }
+            }
+            
+        async function testBothAPIs() {
+            clearResults();
+            await testBasicAPI();
+            await testLocationParser();
+        }
+    </script>
+</body>
+</html> 

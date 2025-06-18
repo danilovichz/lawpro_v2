@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Fix Test</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Testing API Fix with Axios</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                console.log('Testing with axios...');
+                const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                    model: "openai/gpt-4.1-mini",
+                    max_tokens: 100,
+                    messages: [
+                        {
+                            role: "system",
+                            content: "You are a legal query parser. Extract location where the user needs a lawyer and the case type. Return JSON: {\"county\": \"County Name\" or null, \"state\": \"State Name\" or null, \"caseType\": \"criminal\" or \"personal_injury\" or null, \"confidence\": {\"county\": 0.9, \"state\": 0.9, \"caseType\": 0.9}}"
+                        },
+                        {
+                            role: "user",
+                            content: "I killed a guy in monroe ny"
+                        }
+                    ]
+                }, {
+                    headers: {
+                        'Authorization': 'Bearer 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',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('Status:', response.status);
+                console.log('Response:', response.data);
+                
+                if (response.status === 200 && response.data.choices && response.data.choices[0]) {
+                    const content = response.data.choices[0].message.content;
+                    resultDiv.innerHTML = `<h2>SUCCESS!</h2><pre>${content}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<h2>ERROR!</h2><pre>Status: ${response.status}\nResponse: ${JSON.stringify(response.data, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<h2>ERROR!</h2><pre>${error.message}\n\n${JSON.stringify(error.response?.data || error, null, 2)}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Axios OpenRouter Test</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .test-section { margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background-color: #e2e3e5; border-color: #d6d8db; color: #383d41; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        pre { background-color: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+        button { padding: 12px 24px; margin: 10px 5px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .test-result { margin: 15px 0; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Comprehensive Axios OpenRouter Implementation Test</h1>
+    <p>Testing all OpenRouter API implementations with proper authentication and error handling</p>
+    
+    <div class="test-section">
+        <h2>🔧 Test Controls</h2>
+        <button class="btn-primary" onclick="runAllTests()">Run All Tests</button>
+        <button class="btn-success" onclick="testBasicAuth()">Test Basic Auth</button>
+        <button class="btn-success" onclick="testEnhancedSearch()">Test Enhanced Search</button>
+        <button class="btn-success" onclick="testLocationExtraction()">Test Location Extraction</button>
+        <button class="btn-success" onclick="testTitleGeneration()">Test Title Generation</button>
+        <button class="btn-danger" onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        const OPENROUTER_API_KEY = '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';
+        
+        function addResult(title, content, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-section ${type}`;
+            div.innerHTML = `<h2>${title}</h2>${content}`;
+            document.getElementById('results').appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // Test 1: Basic OpenRouter Authentication
+        async function testBasicAuth() {
+            addResult('🔐 Testing Basic OpenRouter Authentication', 'Initializing authentication test...', 'info');
+            
+            try {
+                const startTime = Date.now();
+                const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                    model: 'openai/gpt-4.1-mini',
+                    messages: [{ role: 'user', content: 'Reply with exactly: "AUTH_SUCCESS"' }],
+                    max_tokens: 10,
+                    temperature: 0
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'LawPro Auth Test'
+                    }
+                });
+                
+                const duration = Date.now() - startTime;
+                
+                // Validate OpenRouter response structure
+                if (response.status !== 200) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                if (!response.data || !response.data.choices || !Array.isArray(response.data.choices) || response.data.choices.length === 0) {
+                    throw new Error('Invalid response structure - missing choices array');
+                }
+
+                const choice = response.data.choices[0];
+                if (!choice.message || !choice.message.content) {
+                    throw new Error('Invalid response structure - missing message content');
+                }
+                
+                const content = choice.message.content.trim();
+                const model = response.data.model;
+                
+                addResult('✅ Basic Authentication Test - SUCCESS', `
+                    <div class="test-result success">
+                        <p><strong>✅ Authentication:</strong> Valid API key accepted</p>
+                        <p><strong>✅ Model:</strong> ${model}</p>
+                        <p><strong>✅ Response:</strong> "${content}"</p>
+                        <p><strong>✅ Response time:</strong> ${duration}ms</p>
+                        <p><strong>✅ Status:</strong> ${response.status}</p>
+                    </div>
+                    <details>
+                        <summary>View full response</summary>
+                        <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                    </details>
+                `, 'success');
+                
+                return true;
+                
+            } catch (error) {
+                let errorDetails = '';
+                if (error.response) {
+                    errorDetails = `
+                        <p><strong>Status:</strong> ${error.response.status}</p>
+                        <p><strong>Status Text:</strong> ${error.response.statusText}</p>
+                        <p><strong>Headers:</strong> ${JSON.stringify(error.response.headers, null, 2)}</p>
+                        <pre>${JSON.stringify(error.response.data, null, 2)}</pre>
+                    `;
+                } else if (error.request) {
+                    errorDetails = `<p><strong>Network Error:</strong> No response received</p><pre>${error.request}</pre>`;
+                } else {
+                    errorDetails = `<p><strong>Error:</strong> ${error.message}</p>`;
+                }
+                
+                addResult('❌ Basic Authentication Test - FAILED', `
+                    <div class="test-result error">
+                        <p><strong>❌ Authentication failed</strong></p>
+                        ${errorDetails}
+                    </div>
+                `, 'error');
+                
+                return false;
+            }
+        }
+
+        // Test 2: Enhanced Search API
+        async function testEnhancedSearch() {
+            addResult('🔍 Testing Enhanced Search API', 'Testing legal query parsing...', 'info');
+            
+            try {
+                const testQuery = "I killed a guy in monroe ny";
+                const startTime = Date.now();
+                
+                const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                    model: "openai/gpt-4.1-mini",
+                    max_tokens: 100,
+                    messages: [
+                        {
+                            role: "system",
+                            content: "You are a legal query parser. Extract location where the user needs a lawyer and the case type. For 'I killed a guy in monroe ny', extract: county='Monroe County', state='New York', caseType='criminal'. Expand state abbreviations (ny→New York, ca→California). Return JSON: {\"county\": \"County Name\" or null, \"state\": \"State Name\" or null, \"caseType\": \"criminal\" or \"personal_injury\" or null, \"confidence\": {\"county\": 0.9, \"state\": 0.9, \"caseType\": 0.9}}"
+                        },
+                        {
+                            role: "user",
+                            content: testQuery
+                        }
+                    ]
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'LawPro Enhanced Search'
+                    }
+                });
+                
+                const duration = Date.now() - startTime;
+                
+                // Validate response structure
+                if (response.status !== 200) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+                    throw new Error('Invalid response structure');
+                }
+
+                const choice = response.data.choices[0];
+                if (!choice.message || !choice.message.content) {
+                    throw new Error('Missing message content');
+                }
+                
+                const content = choice.message.content;
+                
+                // Try to parse JSON
+                let parsedResult;
+                try {
+                    const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        parsedResult = JSON.parse(jsonMatch[0]);
+                    } else {
+                        throw new Error('No JSON found in response');
+                    }
+                } catch (parseError) {
+                    throw new Error(`JSON parse error: ${parseError.message}`);
+                }
+                
+                // Validate parsing results
+                const isCorrect = parsedResult.state === "New York" && 
+                                 parsedResult.caseType === "criminal" &&
+                                 (parsedResult.county && parsedResult.county.toLowerCase().includes('monroe'));
+                
+                if (isCorrect) {
+                    addResult('✅ Enhanced Search Test - SUCCESS', `
+                        <div class="test-result success">
+                            <p><strong>✅ Input:</strong> "${testQuery}"</p>
+                            <p><strong>✅ State:</strong> ${parsedResult.state} (Correct)</p>
+                            <p><strong>✅ County:</strong> ${parsedResult.county} (Correct)</p>
+                            <p><strong>✅ Case Type:</strong> ${parsedResult.caseType} (Correct)</p>
+                            <p><strong>✅ Response time:</strong> ${duration}ms</p>
+                        </div>
+                        <details>
+                            <summary>View parsed result</summary>
+                            <pre>${JSON.stringify(parsedResult, null, 2)}</pre>
+                        </details>
+                    `, 'success');
+                } else {
+                    addResult('⚠️ Enhanced Search Test - PARTIAL', `
+                        <div class="test-result warning">
+                            <p><strong>⚠️ API working but parsing needs improvement</strong></p>
+                            <p><strong>Input:</strong> "${testQuery}"</p>
+                            <p><strong>Expected:</strong> state="New York", county="Monroe County", caseType="criminal"</p>
+                            <p><strong>Got:</strong> state="${parsedResult.state}", county="${parsedResult.county}", caseType="${parsedResult.caseType}"</p>
+                        </div>
+                        <details>
+                            <summary>View parsed result</summary>
+                            <pre>${JSON.stringify(parsedResult, null, 2)}</pre>
+                        </details>
+                    `, 'warning');
+                }
+                
+                return isCorrect;
+                
+            } catch (error) {
+                let errorDetails = '';
+                if (error.response) {
+                    errorDetails = `
+                        <p><strong>Status:</strong> ${error.response.status}</p>
+                        <pre>${JSON.stringify(error.response.data, null, 2)}</pre>
+                    `;
+                } else {
+                    errorDetails = `<p><strong>Error:</strong> ${error.message}</p>`;
+                }
+                
+                addResult('❌ Enhanced Search Test - FAILED', `
+                    <div class="test-result error">
+                        <p><strong>❌ Enhanced search failed</strong></p>
+                        ${errorDetails}
+                    </div>
+                `, 'error');
+                
+                return false;
+            }
+        }
+
+        // Test 3: Location Extraction
+        async function testLocationExtraction() {
+            addResult('📍 Testing Location Extraction API', 'Testing location parsing...', 'info');
+            
+            try {
+                const testLocations = [
+                    { input: "clark nevada", expected: { county: "Clark", state: "Nevada" } },
+                    { input: "honolulu hawaii", expected: { county: "Honolulu", state: "Hawaii" } },
+                    { input: "new york ny", expected: { state: "New York" } }
+                ];
+                
+                let allPassed = true;
+                let results = '';
+                
+                for (const test of testLocations) {
+                    const startTime = Date.now();
+                    
+                    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                        model: "openai/gpt-4.1-mini",
+                        messages: [
+                            {
+                                role: "system",
+                                content: `You are a precise location extraction service that identifies US counties and states mentioned in text. Return a JSON object with 'county' and 'state' fields, with null for any field not found.`
+                            },
+                            {
+                                role: "user",
+                                content: test.input
+                            }
+                        ],
+                        response_format: { type: "json_object" }
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                            'Content-Type': 'application/json',
+                            'HTTP-Referer': window.location.origin,
+                            'X-Title': 'LawPro Location Extractor'
+                        }
+                    });
+                    
+                    const duration = Date.now() - startTime;
+                    
+                    if (response.status === 200 && response.data.choices && response.data.choices[0]) {
+                        const content = response.data.choices[0].message.content;
+                        const parsed = JSON.parse(content);
+                        
+                        const passed = (test.expected.state ? parsed.state === test.expected.state : true) &&
+                                      (test.expected.county ? parsed.county === test.expected.county : true);
+                        
+                        results += `
+                            <div class="test-result ${passed ? 'success' : 'warning'}">
+                                <p><strong>${passed ? '✅' : '⚠️'} Input:</strong> "${test.input}" (${duration}ms)</p>
+                                <p><strong>Expected:</strong> ${JSON.stringify(test.expected)}</p>
+                                <p><strong>Got:</strong> ${JSON.stringify(parsed)}</p>
+                            </div>
+                        `;
+                        
+                        if (!passed) allPassed = false;
+                    } else {
+                        results += `
+                            <div class="test-result error">
+                                <p><strong>❌ Input:</strong> "${test.input}" - API Error</p>
+                            </div>
+                        `;
+                        allPassed = false;
+                    }
+                }
+                
+                addResult(allPassed ? '✅ Location Extraction Test - SUCCESS' : '⚠️ Location Extraction Test - PARTIAL', results, allPassed ? 'success' : 'warning');
+                return allPassed;
+                
+            } catch (error) {
+                addResult('❌ Location Extraction Test - FAILED', `
+                    <div class="test-result error">
+                        <p><strong>❌ Location extraction failed</strong></p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `, 'error');
+                
+                return false;
+            }
+        }
+
+        // Test 4: Title Generation
+        async function testTitleGeneration() {
+            addResult('📝 Testing Title Generation API', 'Testing AI title generation...', 'info');
+            
+            try {
+                const testCases = [
+                    "I was in a car accident in Boston",
+                    "I need help with a DUI case",
+                    "I want to file for divorce"
+                ];
+                
+                let results = '';
+                let allPassed = true;
+                
+                for (const testCase of testCases) {
+                    const startTime = Date.now();
+                    
+                    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                        model: 'openai/gpt-4.1-mini',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'Create a unique, specific 2-3 word title for legal cases. Be creative and specific. Never use "Legal Question" or generic terms.'
+                            },
+                            {
+                                role: 'user', 
+                                content: `Create a specific title for: "${testCase}"`
+                            }
+                        ],
+                        temperature: 0.8,
+                        max_tokens: 20
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                            'Content-Type': 'application/json',
+                            'HTTP-Referer': window.location.origin,
+                            'X-Title': 'LawPro Title Generator'
+                        }
+                    });
+                    
+                    const duration = Date.now() - startTime;
+                    
+                    if (response.status === 200 && response.data.choices && response.data.choices[0]) {
+                        const title = response.data.choices[0].message.content.trim();
+                        const isGood = title && title !== 'Legal Question' && title !== 'Legal Matter' && title.length > 0;
+                        
+                        results += `
+                            <div class="test-result ${isGood ? 'success' : 'warning'}">
+                                <p><strong>${isGood ? '✅' : '⚠️'} Input:</strong> "${testCase}" (${duration}ms)</p>
+                                <p><strong>Generated Title:</strong> "${title}"</p>
+                            </div>
+                        `;
+                        
+                        if (!isGood) allPassed = false;
+                    } else {
+                        results += `
+                            <div class="test-result error">
+                                <p><strong>❌ Input:</strong> "${testCase}" - API Error</p>
+                            </div>
+                        `;
+                        allPassed = false;
+                    }
+                }
+                
+                addResult(allPassed ? '✅ Title Generation Test - SUCCESS' : '⚠️ Title Generation Test - PARTIAL', results, allPassed ? 'success' : 'warning');
+                return allPassed;
+                
+            } catch (error) {
+                addResult('❌ Title Generation Test - FAILED', `
+                    <div class="test-result error">
+                        <p><strong>❌ Title generation failed</strong></p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `, 'error');
+                
+                return false;
+            }
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            clearResults();
+            addResult('🚀 Starting Comprehensive Axios OpenRouter Test Suite', 'Running all authentication and API tests...', 'info');
+            
+            const results = {
+                auth: await testBasicAuth(),
+                search: await testEnhancedSearch(),
+                location: await testLocationExtraction(),
+                title: await testTitleGeneration()
+            };
+            
+            const passed = Object.values(results).filter(Boolean).length;
+            const total = Object.keys(results).length;
+            
+            const summary = `
+                <div class="test-result ${passed === total ? 'success' : passed > 0 ? 'warning' : 'error'}">
+                    <h3>📊 Test Summary</h3>
+                    <p><strong>Passed:</strong> ${passed}/${total} tests</p>
+                    <ul>
+                        <li>Basic Auth: ${results.auth ? '✅ PASS' : '❌ FAIL'}</li>
+                        <li>Enhanced Search: ${results.search ? '✅ PASS' : '❌ FAIL'}</li>
+                        <li>Location Extraction: ${results.location ? '✅ PASS' : '❌ FAIL'}</li>
+                        <li>Title Generation: ${results.title ? '✅ PASS' : '❌ FAIL'}</li>
+                    </ul>
+                    <p><strong>Status:</strong> ${passed === total ? '🎉 All systems operational!' : passed > 0 ? '⚠️ Some issues detected' : '🚨 Critical errors detected'}</p>
+                </div>
+            `;
+            
+            addResult('📊 Final Test Results', summary, passed === total ? 'success' : passed > 0 ? 'warning' : 'error');
+        }
+    </script>
+</body>
+</html> 

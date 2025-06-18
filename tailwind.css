@@ -1,0 +1,132 @@
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .all-\[unset\] {
+    all: unset;
+  }
+}
+
+:root {
+  --label-small-font-family: "Inter", Helvetica;
+  --label-small-font-size: 14px;
+  --label-small-font-style: normal;
+  --label-small-font-weight: 500;
+  --label-small-letter-spacing: -0.0840000033378601px;
+  --label-small-line-height: 20px;
+  --label-x-small-font-family: "Inter", Helvetica;
+  --label-x-small-font-size: 12px;
+  --label-x-small-font-style: normal;
+  --label-x-small-font-weight: 500;
+  --label-x-small-letter-spacing: 0px;
+  --label-x-small-line-height: 16px;
+  --paragraph-small-font-family: "Inter", Helvetica;
+  --paragraph-small-font-size: 14px;
+  --paragraph-small-font-style: normal;
+  --paragraph-small-font-weight: 400;
+  --paragraph-small-letter-spacing: -0.0840000033378601px;
+  --paragraph-small-line-height: 20px;
+  --paragraph-x-small-font-family: "Inter", Helvetica;
+  --paragraph-x-small-font-size: 12px;
+  --paragraph-x-small-font-style: normal;
+  --paragraph-x-small-font-weight: 400;
+  --paragraph-x-small-letter-spacing: 0px;
+  --paragraph-x-small-line-height: 16px;
+  --regular-shadow-small: 0px 2px 4px 0px rgba(27, 28, 29, 0.04);
+  --regular-shadow-x-small: 0px 1px 2px 0px rgba(10, 13, 20, 0.03);
+  --subheading-2x-small-font-family: "Inter", Helvetica;
+  --subheading-2x-small-font-size: 11px;
+  --subheading-2x-small-font-style: normal;
+  --subheading-2x-small-font-weight: 500;
+  --subheading-2x-small-letter-spacing: 0.22px;
+  --subheading-2x-small-line-height: 12px;
+  --subheading-x-small-font-family: "Inter", Helvetica;
+  --subheading-x-small-font-size: 12px;
+  --subheading-x-small-font-style: normal;
+  --subheading-x-small-font-weight: 500;
+  --subheading-x-small-letter-spacing: 0.48px;
+  --subheading-x-small-line-height: 16px;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+
+    --card: transparent;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 215 20.2% 65.1%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+
+    --card: transparent;
+    --card-foreground: 213 31% 91%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 216 34% 17%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
