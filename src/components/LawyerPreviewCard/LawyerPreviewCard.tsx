@@ -107,7 +107,7 @@ const LawyerPreviewCard: React.FC<LawyerPreviewCardProps> = ({
             
             {/* Firm Name with Verified Icon */}
             <div className="flex items-center gap-1 mb-2">
-              <span className="text-sm font-semibold text-[rgba(26,35,126,0.6)] uppercase tracking-wide truncate">
+              <span className="text-sm font-semibold text-[rgba(26,35,126,0.6)] uppercase tracking-wide break-words">
                 {firm.toUpperCase()}
               </span>
               <BadgeCheck className="w-4 h-4 text-[#05B11F] flex-shrink-0" />

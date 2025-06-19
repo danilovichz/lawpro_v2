@@ -257,6 +257,11 @@ const LawyerDetailedCard: React.FC<LawyerDetailedCardProps> = ({
 
                 {/* Name and Rating */}
                 <h2 className="text-lg md:text-xl font-semibold text-[#171717] mb-1">{name}</h2>
+                {firm && (
+                  <p className="text-sm md:text-base text-[rgba(26,35,126,0.8)] font-medium mb-1 break-words">
+                    {firm}
+                  </p>
+                )}
                 <div className="flex items-center gap-1 text-sm md:text-base text-[rgba(0,0,0,0.6)]">
                   <Star className="w-4 h-4 md:w-4 md:h-4 fill-[#F6B51E] text-[#F6B51E]" />
                   <span className="font-medium">{rating.toFixed(1)}</span>
@@ -359,7 +364,7 @@ const LawyerDetailedCard: React.FC<LawyerDetailedCardProps> = ({
                   LawPro Verified
                 </Badge>
                 <Badge className="bg-[#FAF5FF] text-[#842DCF] border-[#E9D5FF] hover:bg-[#FAF5FF] text-xs md:text-sm">
-                  Free Consultant
+                  Free Consultation
                 </Badge>
               </div>
 

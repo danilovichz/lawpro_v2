@@ -222,7 +222,7 @@ const AttorneyCard: React.FC<AttorneyCardProps> = ({
               </div>
               <div className="flex items-center px-3 py-1.5 rounded-full text-xs font-medium border border-purple-200 bg-purple-50">
                 <Briefcase className="w-3.5 h-3.5 mr-1 text-purple-700" />
-                <span className="text-purple-700">Free Consultant</span>
+                <span className="text-purple-700">Free Consultation</span>
               </div>
             </div>
 

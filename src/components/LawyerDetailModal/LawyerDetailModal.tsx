@@ -118,7 +118,7 @@ const LawyerDetailModal: React.FC<LawyerDetailModalProps> = ({
                   )}
                 </div>
                 <p className="text-indigo-100 font-medium mb-1">{displayLawyer.specialty}</p>
-                <p className="text-indigo-200 text-sm">{displayLawyer.lawFirm}</p>
+                <p className="text-indigo-200 text-sm break-words">{displayLawyer.lawFirm}</p>
                 
                 {/* Rating */}
                 <div className="flex items-center mt-2 space-x-2">
