@@ -31,11 +31,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Test the connection with more detailed error handling
-supabase.from('chat_sessions').select('count', { count: 'exact', head: true })
-  .then(() => {
+(async () => {
+  try {
+    await supabase.from('chat_sessions').select('count', { count: 'exact', head: true });
     console.log('Successfully connected to Supabase');
-  })
-  .catch((error) => {
+  } catch (error: any) {
     console.error('Error connecting to Supabase:', error);
     if (error.message?.includes('Failed to fetch')) {
       console.error('CORS Error: Please ensure your Supabase project allows requests from:', window.location.origin);
@@ -46,4 +46,5 @@ supabase.from('chat_sessions').select('count', { count: 'exact', head: true })
     console.error('2. Supabase project is online');
     console.error('3. CORS settings include your local development URL (http://localhost:5173)');
     console.error('4. No network connectivity issues or interfering browser extensions');
-  });
+  }
+})();
