@@ -188,10 +188,6 @@ export const Screen = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loadingMessage]);
-
-  useEffect(() => {
     if (isLoading) {
       let index = 0;
       loadingIntervalRef.current = setInterval(() => {
@@ -1410,17 +1406,7 @@ export const Screen = (): JSX.Element => {
               </div>
             ))}
           </div>
-
-          <Button
-            variant="ghost"
-            className="flex items-center gap-2 p-3 w-full text-left text-[#5c5c5c]"
-          >
-            <SettingsIcon className="w-5 h-5" />
-            <span>Settings</span>
-          </Button>
         </div>
-
-
       </aside>
 
       <main className="flex-1 p-2 md:p-[9px] w-full">
@@ -1446,17 +1432,15 @@ export const Screen = (): JSX.Element => {
                 {messages.map((message) => (
                   <div key={message.id} className={`flex ${message.is_user ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex items-start gap-2 max-w-[90%] md:max-w-[80%] ${message.is_user ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <Avatar className={`w-8 h-8 md:w-10 md:h-10 ${message.is_user ? 'bg-indigo-100' : 'bg-[#f2f2f2] border border-[#00000005]'}`}>
-                        {message.is_user ? (
-                          <AvatarFallback>U</AvatarFallback>
-                        ) : (
+                      {!message.is_user && (
+                        <Avatar className="w-8 h-8 md:w-10 md:h-10 bg-[#f2f2f2] border border-[#00000005] flex items-center justify-center">
                           <img
                             className="w-5 h-5 md:w-[29px] md:h-[26px]"
                             alt="LawPro"
                             src="/frame-2147227290.svg"
                           />
-                        )}
-                      </Avatar>
+                        </Avatar>
+                      )}
                       
                       {message.type === 'lawyerPreview' && selectedLawyer ? (
                         <LawyerPreviewCard 
@@ -1504,7 +1488,7 @@ export const Screen = (): JSX.Element => {
                 {isLoading && (
                   <div className="flex justify-start">
                     <div className="flex items-start gap-2 max-w-[90%] md:max-w-[80%]">
-                      <Avatar className="w-8 h-8 md:w-10 md:h-10 bg-[#f2f2f2] border border-[#00000005]">
+                      <Avatar className="w-8 h-8 md:w-10 md:h-10 bg-[#f2f2f2] border border-[#00000005] flex items-center justify-center">
                         <img
                           className="w-5 h-5 md:w-[29px] md:h-[26px]"
                           alt="LawPro"
