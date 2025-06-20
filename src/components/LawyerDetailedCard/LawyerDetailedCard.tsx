@@ -210,9 +210,9 @@ const LawyerDetailedCard: React.FC<LawyerDetailedCardProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-hidden">
       {/* Mobile: Full screen, Desktop: Centered modal */}
-      <div className="bg-white w-full h-full md:w-[600px] md:max-w-[90vw] md:h-auto md:max-h-[90vh] md:rounded-lg md:shadow-xl overflow-hidden flex flex-col">
+      <div className="bg-white w-full h-full md:w-[600px] md:max-w-[90vw] md:h-auto md:max-h-[90vh] md:rounded-lg md:shadow-xl flex flex-col">
         {/* Header */}
         <div className="bg-[rgba(67,56,202,0.07)] p-4 md:p-6 relative flex-shrink-0">
           {/* Close button - positioned to not overlap content */}
@@ -286,7 +286,13 @@ const LawyerDetailedCard: React.FC<LawyerDetailedCardProps> = ({
                   {phoneNumber && (
                     <div className="flex items-center gap-3 text-[rgba(0,0,0,0.6)]">
                       <Phone className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-                      <span className="break-all">{phoneNumber}</span>
+                      <a 
+                        href={`tel:${phoneNumber.replace(/\D/g, '')}`}
+                        className="break-all hover:underline hover:text-blue-600 transition-colors bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-md flex-1 text-blue-700 font-medium"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        📞 {phoneNumber}
+                      </a>
                     </div>
                   )}
                   {email && (
@@ -353,8 +359,8 @@ const LawyerDetailedCard: React.FC<LawyerDetailedCardProps> = ({
           </button>
         </div>
 
-        {/* Tab Content - scrollable */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-4 md:pb-6">
+        {/* Tab Content - Enhanced scrollable area */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-6 pb-4 md:pb-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           {activeTab === 'overview' && (
             <div className="space-y-4 md:space-y-6">
               {/* Badges */}

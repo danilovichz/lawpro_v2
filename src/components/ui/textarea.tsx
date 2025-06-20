@@ -5,7 +5,27 @@ import { cn } from "../../lib/utils";
 const Textarea = React.forwardRef<
   HTMLTextAreaElement,
   React.ComponentProps<"textarea">
->(({ className, ...props }, ref) => {
+>(({ className, onFocus, onBlur, ...props }, ref) => {
+  const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    // Prevent mobile zoom on focus
+    if (window.innerWidth < 768) {
+      // Small delay to ensure the keyboard is shown
+      setTimeout(() => {
+        // Smooth scroll to bring input into view without aggressive zoom
+        e.target.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+      }, 300);
+    }
+    onFocus?.(e);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    onBlur?.(e);
+  };
+
   return (
     <textarea
       className={cn(
@@ -18,6 +38,8 @@ const Textarea = React.forwardRef<
         touchAction: 'manipulation', // Prevent double-tap zoom
         ...props.style,
       }}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       {...props}
     />
   );

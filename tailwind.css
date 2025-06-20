@@ -5,6 +5,36 @@
   .all-\[unset\] {
     all: unset;
   }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    /* Prevent zoom on input focus */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="password"],
+    input[type="search"],
+    textarea,
+    select {
+      font-size: 16px !important;
+      transform: translateZ(0);
+      transition: none;
+    }
+    
+    /* Smooth scrolling for mobile */
+    html {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+    
+    /* Prevent aggressive viewport changes */
+    body {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+  }
 }
 
 :root {

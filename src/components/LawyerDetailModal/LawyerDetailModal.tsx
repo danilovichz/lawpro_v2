@@ -163,13 +163,14 @@ const LawyerDetailModal: React.FC<LawyerDetailModalProps> = ({
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <Phone className="w-5 h-5 text-green-600" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="text-sm text-gray-600">Phone</p>
                       <a 
-                        href={`tel:${displayLawyer.phoneNumber}`}
-                        className="text-gray-900 font-medium hover:text-indigo-600 transition-colors"
+                        href={`tel:${displayLawyer.phoneNumber.replace(/\D/g, '')}`}
+                        className="bg-green-50 hover:bg-green-100 px-3 py-2 rounded-md text-green-700 font-medium transition-colors block mt-1"
+                        style={{ textDecoration: 'none' }}
                       >
-                        {formatPhoneNumber(displayLawyer.phoneNumber)}
+                        📞 {formatPhoneNumber(displayLawyer.phoneNumber)}
                       </a>
                     </div>
                   </div>
