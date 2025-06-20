@@ -170,7 +170,7 @@ const LawyerDetailModal: React.FC<LawyerDetailModalProps> = ({
                         className="bg-green-50 hover:bg-green-100 px-3 py-2 rounded-md text-green-700 font-medium transition-colors block mt-1"
                         style={{ textDecoration: 'none' }}
                       >
-                        📞 {formatPhoneNumber(displayLawyer.phoneNumber)}
+                        {formatPhoneNumber(displayLawyer.phoneNumber)}
                       </a>
                     </div>
                   </div>

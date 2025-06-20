@@ -71,6 +71,7 @@ export const Screen = (): JSX.Element => {
   const loadingIntervalRef = useRef<NodeJS.Timeout>();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastUserMessageRef = useRef<HTMLDivElement>(null);
   const browserSessionId = useRef(nanoid());
   
   // State for lawyer modals
@@ -441,6 +442,19 @@ export const Screen = (): JSX.Element => {
     setIsLawyerListOpen(true);
   };
 
+  // Smooth scroll to user's message after sending
+  const scrollToUserMessage = () => {
+    if (lastUserMessageRef.current) {
+      setTimeout(() => {
+        lastUserMessageRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }, 100); // Small delay to ensure DOM is updated
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
 
@@ -482,6 +496,9 @@ export const Screen = (): JSX.Element => {
       // Update message list with user message
       const userMessageWithType = { ...userMessage, type: 'text' as const };
       setMessages(prev => [...prev, userMessageWithType]);
+
+      // Scroll to the user's sent message (not to bottom)
+      scrollToUserMessage();
 
       // Always try to update session title for the first message in this session
       if (messages.length === 0) {
@@ -1429,62 +1446,69 @@ export const Screen = (): JSX.Element => {
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto space-y-4 md:space-y-6 mb-4 px-2 md:px-4">
-                {messages.map((message) => (
-                  <div key={message.id} className={`flex ${message.is_user ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`flex items-start gap-2 max-w-[90%] md:max-w-[80%] ${message.is_user ? 'flex-row-reverse' : 'flex-row'}`}>
-                      {!message.is_user && (
-                        <Avatar className="w-8 h-8 md:w-10 md:h-10 bg-[#f2f2f2] border border-[#00000005] flex items-center justify-center">
-                          <img
-                            className="w-5 h-5 md:w-[29px] md:h-[26px]"
-                            alt="LawPro"
-                            src="/frame-2147227290.svg"
-                          />
-                        </Avatar>
-                      )}
-                      
-                      {message.type === 'lawyerPreview' && selectedLawyer ? (
-                        <LawyerPreviewCard 
-                          name={selectedLawyer.name || "Attorney Representative"}
-                          specialty={selectedLawyer.specialty || "Legal Professional"}
-                          profileImageUrl={selectedLawyer.profileImageUrl || "/placeholder-attorney.jpg"}
-                          rating={selectedLawyer.rating || 4.8}
-                          firm={selectedLawyer.lawFirm || "Law Firm"}
-                          location={getDisplayLocation(currentCaseInfo) || "Your Area"}
-                          caseType={currentCaseInfo.caseType || "Legal Cases"}
-                          onClick={handleOpenLawyerDetail}
-                          onConnectClick={(e) => {
-                            e.stopPropagation();
-                            setIsLawyerDetailedCardOpen(true);
-                          }}
-                        />
-                      ) : message.type === 'viewMoreLawyers' ? (
-                        renderViewMoreLawyersCard()
-                      ) : (
-                      <div className={`flex flex-col ${message.is_user ? 'items-end' : 'items-start'}`}>
-                        <div 
-                          className={`p-3 md:p-4 rounded-2xl text-sm md:text-base ${
-                            message.is_user 
-                              ? 'bg-indigo-700 text-white rounded-br-none' 
-                              : 'bg-gray-100 text-gray-900 rounded-bl-none'
-                          }`}
-                        >
-                          {message.is_user ? (
-                            <span>{message.content}</span>
-                          ) : (
-                            <div 
-                              className="prose prose-sm max-w-none"
-                              dangerouslySetInnerHTML={{ __html: message.content }}
+                {messages.map((message, index) => {
+                  const isLastUserMessage = message.is_user && index === messages.length - 1;
+                  return (
+                    <div 
+                      key={message.id} 
+                      className={`flex ${message.is_user ? 'justify-end' : 'justify-start'}`}
+                      ref={isLastUserMessage ? lastUserMessageRef : null}
+                    >
+                      <div className={`flex items-start gap-2 max-w-[90%] md:max-w-[80%] ${message.is_user ? 'flex-row-reverse' : 'flex-row'}`}>
+                        {!message.is_user && (
+                          <Avatar className="w-8 h-8 md:w-10 md:h-10 bg-[#f2f2f2] border border-[#00000005] flex items-center justify-center">
+                            <img
+                              className="w-5 h-5 md:w-[29px] md:h-[26px]"
+                              alt="LawPro"
+                              src="/frame-2147227290.svg"
                             />
-                          )}
+                          </Avatar>
+                        )}
+                        
+                        {message.type === 'lawyerPreview' && selectedLawyer ? (
+                          <LawyerPreviewCard 
+                            name={selectedLawyer.name || "Attorney Representative"}
+                            specialty={selectedLawyer.specialty || "Legal Professional"}
+                            profileImageUrl={selectedLawyer.profileImageUrl || "/placeholder-attorney.jpg"}
+                            rating={selectedLawyer.rating || 4.8}
+                            firm={selectedLawyer.lawFirm || "Law Firm"}
+                            location={getDisplayLocation(currentCaseInfo) || "Your Area"}
+                            caseType={currentCaseInfo.caseType || "Legal Cases"}
+                            onClick={handleOpenLawyerDetail}
+                            onConnectClick={(e) => {
+                              e.stopPropagation();
+                              setIsLawyerDetailedCardOpen(true);
+                            }}
+                          />
+                        ) : message.type === 'viewMoreLawyers' ? (
+                          renderViewMoreLawyersCard()
+                        ) : (
+                        <div className={`flex flex-col ${message.is_user ? 'items-end' : 'items-start'}`}>
+                          <div 
+                            className={`p-3 md:p-4 rounded-2xl text-sm md:text-base ${
+                              message.is_user 
+                                ? 'bg-indigo-700 text-white rounded-br-none' 
+                                : 'bg-gray-100 text-gray-900 rounded-bl-none'
+                            }`}
+                          >
+                            {message.is_user ? (
+                              <span>{message.content}</span>
+                            ) : (
+                              <div 
+                                className="prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ __html: message.content }}
+                              />
+                            )}
+                          </div>
+                          <span className="text-[10px] md:text-xs text-gray-500 mt-1">
+                            {formatTime(message.created_at)}
+                          </span>
                         </div>
-                        <span className="text-[10px] md:text-xs text-gray-500 mt-1">
-                          {formatTime(message.created_at)}
-                        </span>
+                        )}
                       </div>
-                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {isLoading && (
                   <div className="flex justify-start">
                     <div className="flex items-start gap-2 max-w-[90%] md:max-w-[80%]">
