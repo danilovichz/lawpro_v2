@@ -14,6 +14,13 @@ const openai = new OpenAI({
 
 // Test function to verify OpenAI API connectivity
 export async function testOpenAIAPI(): Promise<boolean> {
+  // Skip test if no API key is provided (just placeholder)
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  if (!apiKey || apiKey === 'your_openai_api_key_here') {
+    console.log('🔧 [API-TEST] No OpenAI API key configured - skipping test');
+    return false;
+  }
+
   console.log('🔧 [API-TEST] Testing OpenAI connection with proper auth...');
     
   try {
@@ -24,13 +31,12 @@ export async function testOpenAIAPI(): Promise<boolean> {
         temperature: 0
     }, {
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       }
     });
     
     console.log('🔧 [API-TEST] Status:', response.status);
-    console.log('🔧 [API-TEST] Response Headers:', response.headers);
     
     // OpenAI API response validation
     if (response.status !== 200) {
@@ -50,21 +56,17 @@ export async function testOpenAIAPI(): Promise<boolean> {
       return false;
     }
     
-    console.log('🔧 [API-TEST] Full Response:', response.data);
     console.log('✅ [API-TEST] OpenAI is working! Response:', choice.message.content);
     return true;
     
   } catch (error: any) {
-    console.error('❌ [API-TEST] Exception:', error);
+    console.error('❌ [API-TEST] OpenAI API test failed');
     
-    // Log detailed axios error information
-    if (error.response) {
+    // Only log detailed error information if we have a real API key
+    if (error.response?.status === 401) {
+      console.error('🔧 [API-TEST] Invalid API key - please check your OpenAI credentials');
+    } else if (error.response) {
       console.error('🔧 [API-TEST] Error response status:', error.response.status);
-      console.error('🔧 [API-TEST] Error response data:', error.response.data);
-    } else if (error.request) {
-      console.error('🔧 [API-TEST] Error request:', error.request);
-    } else {
-      console.error('🔧 [API-TEST] Error message:', error.message);
     }
     return false;
   }
